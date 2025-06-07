@@ -10,7 +10,7 @@ import threading
 import random
 from django.core.cache import cache
 from django.conf import settings
-from .models import Listing
+from .models import Listing, Reaction
 from .login import  login_to_plaza
 from .reserverd_items import reserved_items
 
@@ -69,12 +69,17 @@ def _fetch_loop():
 
     print("Starting controlled API fetch loop… (use toggle to enable/disable)")
 
+    # login
     session = login_to_plaza(username=usermane, password=password)
-    reserved_properties = reserved_items(session=session)
-
+    # retrieve list of all reactions/reservations
+    reserved_items(session=session)
+    #take the id
+    obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
+    Listing.objects.all().delete()
     while True:
         if cache.get("fetch_enabled", False):
             try:
+                # Retrieve all listings/offers
                 listings_data = fetch_actual_listings()
                 data = listings_data["data"]
                 _metadata = listings_data["_metadata"]
@@ -85,17 +90,35 @@ def _fetch_loop():
                 )
                 print(f"[{time.strftime('%H:%M:%S')}] Retrieved records:", len(listings_data["data"]))
                 city = os.getenv("CITY")
+
+                # Filter-out only the one in CITY
                 target_listings=[]
                 for item in data:
                     try:
                         item_city = item["city"]
                         item_city_name = item_city["name"]
-                        if item_city_name == city:
+                        item_dwellingType = item["dwellingType"]
+                        item_dwellingType_categorie = item_dwellingType["categorie"]
+                        if item_city_name == city and item_dwellingType_categorie == "woning": #and item["id"] in ids:
+                            #print("Not reacted: https://plaza.newnewnew.space/aanbod/huurwoningen/details/https://plaza.newnewnew.space/aanbod/huurwoningen/details/", item["urlKey"])
                             target_listings.append(item)
                     except Exception as e:
                         print("Failed to extract city:", e)
                         pass
-                    cache.set("target_listings", target_listings, timeout=None)
+                cache.set("target_listings", target_listings, timeout=None)
+                print(f"[{time.strftime('%H:%M:%S')}] Properties in", city, ": ", len(target_listings))
+
+                # Not reacted properties
+                for item in target_listings:
+                    for obj_id in obj_ids:
+                        obj_id_set = set(obj_ids)
+                        target_listings = [item for item in target_listings if item["id"] not in obj_id_set]
+                print(f"[{time.strftime('%H:%M:%S')}] Not booked properties in", city, ": ", len(target_listings))
+
+                #Time to book it
+                if len(target_listings) > 0:
+                    print("Time to book it")
+                cache.set("target_listings", target_listings, timeout=None)
             except Exception as e:
                 print("Error during fetch iteration:", e)
         else:

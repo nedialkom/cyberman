@@ -9,6 +9,8 @@ class Listing(models.Model):
 
 class Reaction(models.Model):
     id = models.BigIntegerField(primary_key=True)  # from "id" in data
+    obj_id = models.BigIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
     kan_verwijderd_worden = models.BooleanField()
     toewijzing_id = models.BigIntegerField()
     reactiedatum = models.DateTimeField()
@@ -22,5 +24,3 @@ class Reaction(models.Model):
     huidige_aanbieding = models.JSONField(null=True, blank=True)
     persoonlijke_aanbieding = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-
-    #data = models.JSONField()  # Store the full item as JSON

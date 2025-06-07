@@ -33,6 +33,7 @@ def reserved_items(session: requests.Session):
             dt = timezone.make_aware(dt, timezone.get_default_timezone())
         rec = Reaction.objects.create(
             id=int(item["id"]),
+            obj_id=int(item["object"]["id"]),
             kan_verwijderd_worden=item["kanVerwijderdWorden"],
             toewijzing_id=int(item["toewijzingId"]),
             reactiedatum=dt,  # Consider parsing to datetime
@@ -45,4 +46,4 @@ def reserved_items(session: requests.Session):
             huidige_aanbieding=item.get("huidigeAanbieding"),
             persoonlijke_aanbieding=item.get("persoonlijkeAanbieding"),
         )
-    return resp.json()
+    return
