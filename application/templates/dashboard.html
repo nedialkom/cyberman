@@ -1,0 +1,159 @@
+{# templates/dashboard.html #}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    #status-indicator {
+      font-weight: bold;
+    }
+
+    /* Make the data-container only scroll horizontally */
+    #data-container {
+      overflow-x: auto;
+      overflow-y: visible; /* ensure no vertical scrollbar here */
+      width: 100%;
+      /* remove any max-height or fixed height */
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 800px; /* or whatever minimum you need */
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+
+    /* Row colors */
+    .red-row {
+      background-color: #ffe5e5;
+    }
+    .blue-row {
+      background-color: #e5f0ff;
+    }
+
+    /* Message styles */
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <p><strong>City:</strong> {{ city }}</p>
+  <p><strong>Username:</strong> {{ username }}</p>
+  <p><strong>Password:</strong> {{ password }}</p>
+  <br>
+  <h1>Start/stop lookup: </h1>
+  <div class="controls">
+    <button id="btn-start">Start searching</button>
+    <button id="btn-stop">Stop searching</button>
+    &nbsp;<span id="status-indicator">Search “OFF”</span>
+  </div>
+
+  <div id="data-container">
+    <p class="loading">No data yet. Click “Start search” to begin.</p>
+  </div>
+
+  <script>
+    const POLL_INTERVAL = 1000; // 1 second
+    const dataEndpoint = "{% url 'latest_data' %}";
+    const toggleEndpointBase = "{% url 'toggle_fetch' 'DUMMY' %}".slice(0, -6);
+    let pollTimer = null;
+
+    function fetchAndRender() {
+      fetch(dataEndpoint)
+        .then(resp => {
+          if (!resp.ok) throw new Error("Network response was not OK");
+          return resp.json();
+        })
+        .then(json => {
+          const container = document.getElementById("data-container");
+          container.innerHTML = "";
+
+          if (json.status === "no_data_yet") {
+            container.innerHTML = "<p class='loading'>No data yet. Waiting…</p>";
+            return;
+          }
+
+          if (json.status === "updated_but_no_new_data") {
+            const now = new Date().toLocaleTimeString();
+            container.innerHTML = `<p class='loading'>${now} Updated but no new data</p>`;
+            return;
+          }
+
+          if (!Array.isArray(json)) {
+            container.innerHTML = "<p class='error'>Unexpected data format.</p>";
+            return;
+          }
+        })
+        .catch(err => {
+          const container = document.getElementById("data-container");
+          container.innerHTML = `<p class="error">Error fetching data: ${err}</p>`;
+        });
+    }
+
+    function startPolling() {
+      if (pollTimer !== null) return;
+      fetch(`${toggleEndpointBase}start/`)
+        .then(resp => resp.json())
+        .then(json => {
+          document.getElementById("status-indicator").textContent = "Fetch “ON”";
+          fetchAndRender();
+          pollTimer = setInterval(fetchAndRender, POLL_INTERVAL);
+        })
+        .catch(err => {
+          document.getElementById("status-indicator").textContent =
+            `Error starting fetch: ${err}`;
+        });
+    }
+
+    function stopPolling() {
+      if (pollTimer === null) return;
+      fetch(`${toggleEndpointBase}stop/`)
+        .then(resp => resp.json())
+        .then(json => {
+          document.getElementById("status-indicator").textContent = "Fetch “OFF”";
+          clearInterval(pollTimer);
+          pollTimer = null;
+        })
+        .catch(err => {
+          document.getElementById("status-indicator").textContent =
+            `Error stopping fetch: ${err}`;
+        });
+    }
+
+    document.getElementById("btn-start").addEventListener("click", startPolling);
+    document.getElementById("btn-stop").addEventListener("click", stopPolling);
+
+    // Leave fetch off by default
+    document.getElementById("status-indicator").textContent = "Fetch “OFF”";
+  </script>
+
+
+</body>
+</html>

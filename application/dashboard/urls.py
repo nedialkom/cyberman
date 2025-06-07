@@ -1,0 +1,9 @@
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("latest-data/", views.latest_data,name="latest_data"),
+    path("toggle-fetch/<str:action>/", views.toggle_fetch, name="toggle_fetch"),
+]

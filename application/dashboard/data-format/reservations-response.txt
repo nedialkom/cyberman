@@ -1,0 +1,546 @@
+{
+    "sAngularServiceData": "[{\"url\":\"\\\/portal\\\/core\\\/frontend\\\/getportalconfiguration\\\/format\\\/json\",\"data\":{\"canUpdate\":false,\"enableVat\":true,\"googleMapsApiKey\":\"\",\"gebruikGoogleMaps\":false,\"gebruikOsmKadaster\":false,\"toonBekijkOmgeving\":true,\"hidePosition\":false,\"hideReactionData\":false,\"veldenMetIcoonInAdvertentietegel\":[\"oppervlakteWoning\",\"energielabel\"],\"urlVerlengen\":\"\\\/redirect?code=verlengen-inschrijving\",\"urlGebruikersnaamVergeten\":\"\\\/redirect?code=gebruikersnaam-vergeten\",\"urlWachtwoordVergeten\":\"\\\/redirect?code=wachtwoord-vergeten\",\"urlInloggen\":\"\\\/redirect?code=portal-login-page\",\"hideRegistrationNumber\":false,\"dwellingDetailsQueryKey\":\"dwellingID\",\"clusterDetailsQueryKey\":\"clusterID\",\"verzameladvertentieDetailsQueryKey\":\"dwellingID\",\"extraInschrijfduurUitschakelenMogelijk\":false,\"tijdelijkInschrijvenZonderBetalen\":false,\"magAanbiedingAccepterenBijUitstaandeInschrijvingbetaling\":true,\"maxAantalReacties\":\"0\",\"toonOokLegeVerzameladvertenties\":false,\"reactieInToewijzingsprocesTeltMeeAlsActief\":false,\"betaalmethodes\":[\"ideal\",\"creditCard\"],\"notificatiesActief\":false,\"gebruikKomtNaarBezichtiging\":true,\"komtNaarBezichtigingAanpasbaarTot\":\"24\",\"grootTeTonenPrijsBijAdvertentie\":\"kaleHuur\",\"slaagkansActief\":\"\",\"slaagkansPeriodeTerugkijken\":\"6\",\"urlAanbodApi\":\"https:\\\/\\\/mosaic-plaza-aanbodapi.zig365.nl\",\"locale\":\"nl_NL\",\"inkomensdocumentVerplicht\":false,\"toonMeldingGeenHuurtoeslagBijHuurprijsBovenKortingsgrens\":false,\"toonMeldingGeenHuurtoeslagBijHuurtoeslaggrensBovenKalehuurEnOnderRekenhuur\":false,\"toonTrackTrace\":false,\"trackTraceUitgeslotenModellen\":[\"\"],\"trackTraceContactAlleenTonenBijActiefAanbiedproces\":false,\"huurtoeslaggrens18tot23jaar\":414.02,\"freeHousingLimit\":\"699.99\",\"toonBorgBijWoning\":true,\"inschrijvingtypesBeperktTotPassendAanbod\":[\"8\"],\"woningruilActief\":false,\"internationaalLandActief\":true,\"inkomenOphalenViaMijnOverheidActief\":false,\"inkomenOphalenViaQiiActief\":false,\"urlGegevensAanvullenVoorMijnOverheid\":\"\\\/mijn-omgeving\\\/gegevens-aanvullen\\\/\",\"corporatiesWaarvoorBezichtigingOnmiddelijkMagBeginnen\":[\"\"],\"toonInteresseNaBezichtigingAbsentie\":false,\"gegevensHuidigeHuurderTonenInStatus\":[\"Interesse\"],\"toonToegankelijkheidBijWoning\":false,\"urlQiiAppStore\":\"https:\\\/\\\/apps.apple.com\\\/nl\\\/app\\\/myqii\\\/id1495025031\",\"urlQiiGoogleStore\":\"https:\\\/\\\/play.google.com\\\/store\\\/apps\\\/details?id=com.qii.app&hl=nl\",\"eenmaligeKostenSpecificatieActief\":false,\"vestigingsdatumcontroleren\":false,\"haastrijActief\":false,\"interesseStatusActief\":false,\"urlSsoExternSysteem\":\"\\\/portal\\\/sso\\\/frontend\\\/start\",\"useSsoForLogin\":false,\"zoekprofielActief\":true,\"doorstromingControleren\":false,\"bijAccepterenVragenNaarBetaalgegevens\":false,\"urlQiiInkomenDelenVervolgen\":null}}]",
+    "result": {
+        "items": [
+            {
+                "kanVerwijderdWorden": true,
+                "id": 389724,
+                "toewijzingId": 8163,
+                "reactiedatum": "2025-06-06 15:04:28.699218",
+                "kandidaatnummer": null,
+                "positie": null,
+                "type": "actief",
+                "advertentie": {
+                    "aantalReacties": null,
+                    "status": "Aangeboden",
+                    "annuleerreden": null,
+                    "annuleerDatum": null
+                },
+                "persoonlijkeAanbieding": null,
+                "huidigeAanbieding": {
+                    "type": "aanbieding",
+                    "aantalKandidatenInGroepsaanbieding": 0,
+                    "uitersteReactiedatum": "2025-06-09 16:00:00",
+                    "datumHuurcontractGetekend": null,
+                    "woningzoekendeInschrijvingId": "2025030701",
+                    "woningzoekendeInschrijfdatum": "2025-03-25",
+                    "reactiePositie": 0,
+                    "reactiedatum": "2025-06-06 15:09:41",
+                    "appliesToIngelogdeWoningzoekende": false,
+                    "verantwoording": "Reactiedatum van 06-06-2025, 15:09:41"
+                },
+                "positieIsDefinitief": true,
+                "object": {
+                    "uitlegAanbiedprocesVideoTonen": false,
+                    "infoveldBewoners": "",
+                    "infoveldKort": "",
+                    "hospiterenVanaf": "",
+                    "extraInformatieUrl": "",
+                    "huurtoeslagVoorwaarde": {
+                        "icon": "",
+                        "id": null,
+                        "localizedIconText": null
+                    },
+                    "huurtoeslagMogelijk": null,
+                    "beschikbaarTot": "",
+                    "actionLabelToelichting": "",
+                    "huurinkomenstabelGebruiken": false,
+                    "voorrangAlleUrgenties": false,
+                    "voorrangHuishoudgrootteMin": 0,
+                    "voorrangHuishoudgrootteMax": 0,
+                    "voorrangLeeftijdMin": 0,
+                    "voorrangLeeftijdMax": 0,
+                    "voorrangGezinnenKinderen": false,
+                    "voorrangKernbinding": false,
+                    "reactionData": {
+                        "aangepasteNettoHuurprijs": null,
+                        "aangepasteTotaleHuurprijs": null
+                    },
+                    "isVrijeSectorWoning": true,
+                    "inschrijvingVereistVoorReageren": true,
+                    "VHE": "100016.001.003.002",
+                    "corporation": {
+                        "picture": {
+                            "location": "corporation\/pictures\/Plaza_Logo_Black.png"
+                        },
+                        "email": "",
+                        "emailLink": null,
+                        "telefoonnummer": "",
+                        "name": "Plaza Resident Services"
+                    },
+                    "postalcode": "2628 ZL",
+                    "street": "Van Embdenstraat",
+                    "houseNumber": "384",
+                    "houseNumberAddition": "",
+                    "municipality": {
+                        "name": "Delft",
+                        "id": "15741"
+                    },
+                    "city": {
+                        "name": "Delft",
+                        "id": "3488"
+                    },
+                    "quarter": {
+                        "name": "Delft",
+                        "id": "741"
+                    },
+                    "neighborhood": {
+                        "name": "",
+                        "id": null
+                    },
+                    "dwellingType": {
+                        "categorie": "woning",
+                        "huurprijsDuurActief": false,
+                        "id": "40",
+                        "localizedName": "Studio"
+                    },
+                    "availableFrom": "",
+                    "netRent": 747,
+                    "calculationRent": 0,
+                    "voorschotEnergielasten": 0,
+                    "totalRent": 995.68,
+                    "flexibelHurenActief": false,
+                    "heatingCosts": 45.93,
+                    "epv": 0,
+                    "additionalCosts": 12.75,
+                    "serviceCosts": 190,
+                    "sellingPrice": 0,
+                    "description": "<p>Voor deze locatie hebben we zelfstandige studio\u2019s te huur. De studio\u2019 zijn voorzien van een eigen keuken met koelkast, combi magnetron, kookplaat en afzuigkap. Daarnaast hebben de studio\u2019s een eigen badkamer met douche, toilet en wastafel met spiegel. Ook goed om te weten is dat deze locatie vlakbij de campus ligt, ideaal toch?<br \/><br \/>Naast je eigen space, biedt het complex ook gezamenlijke ruimtes waar je kunt studeren, ontspannen of socializen met je huisgenoten door middel van een potje schaken, darten of poolen en een buiten terras met uizicht over het water. \u00a0Een gemeenschappelijke wasserette is aanwezig en een gemeenschappelijke keuken perfect voor gezamenlijke maaltijden of samen koken.\u00a0<br \/><br \/>We bieden een onbepaalde tijds contract aan met een minimale huurperiode van 12 maanden voor zowel studenten als werkenden. De vaste huurprijs is inclusief: water, elektriciteit, verwarming en natuurlijk internet. <strong>Deze studio heeft geen hoogslaper.<\/strong><\/p><p><br \/><i>Disclaimer: De getoonde foto\u2019s zijn er om jou een goed beeld te geven van de woonruimte, maar hoeven niet altijd specifiek foto\u2019s te zijn van het geadverteerde type woning. Er kunnen dan ook geen rechten ontleend worden aan de getoonde foto\u2019s.<\/i><\/p>",
+                    "areaLivingRoom": 16,
+                    "areaSleepingRoom": "",
+                    "sleepingRoom": {
+                        "amountOfRooms": "0",
+                        "id": "7",
+                        "localizedName": "Geen losse slaapkamer"
+                    },
+                    "energyLabel": {
+                        "inCode": null,
+                        "id": null,
+                        "localizedName": null
+                    },
+                    "energyIndex": "0.00",
+                    "floor": {
+                        "id": "3",
+                        "localizedName": "2e verdieping"
+                    },
+                    "garden": false,
+                    "balcony": false,
+                    "constructionYear": 2017,
+                    "minimumIncome": 0,
+                    "maximumIncome": 0,
+                    "minimumHouseholdSize": 1,
+                    "maximumHouseholdSize": 1,
+                    "minimumAge": 16,
+                    "maximumAge": 0,
+                    "inwonendeKinderenMinimum": 0,
+                    "inwonendeKinderenMaximum": 0,
+                    "inwonendeKinderenVerboden": false,
+                    "model": {
+                        "modelCategorie": {
+                            "icon": "br_dth",
+                            "code": "reactiedatum",
+                            "toonOpWebsite": true,
+                            "id": "3",
+                            "name": "Snelle reageerder"
+                        },
+                        "inCode": "dth",
+                        "einddatumTonen": false,
+                        "aantalReactiesTonen": 0,
+                        "id": "3",
+                        "localizedName": "Advertentie"
+                    },
+                    "rentBuy": "Huur",
+                    "adNumber": "2025060132",
+                    "publicationDate": "2025-06-06 15:04:00",
+                    "closingDate": "2026-06-06 19:00:00",
+                    "numberOfReactions": 0,
+                    "assignmentID": 8163,
+                    "latitude": "51.9997",
+                    "longitude": "4.37974",
+                    "floorplans": [],
+                    "pictures": [
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c1f3524.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c27caaf.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c310fa1.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c3925dd.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c422b6f.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c498569.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c4db05d.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c52596e.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c56347f.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c5a79e4.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/12081-682f59c5e5482.jpg",
+                            "type": "jpg"
+                        }
+                    ],
+                    "gebruikFotoAlsHeader": true,
+                    "remainingTimeUntilClosingDate": "11 maanden en 30 dagen",
+                    "reactieUrl": "",
+                    "temporaryRent": false,
+                    "showEnergyCosts": true,
+                    "newlyBuild": false,
+                    "storageRoom": false,
+                    "areaDwelling": 18,
+                    "areaPerceel": "0",
+                    "volumeDwelling": "0",
+                    "actionLabel": {
+                        "localizedLabel": null
+                    },
+                    "actionLabelFrom": "0000-00-00 00:00:00",
+                    "actionLabelUntil": "0000-00-00 00:00:00",
+                    "actionLabelIfActive": true,
+                    "relatieHuurInkomenData": null,
+                    "relatieHuurInkomenGroepen": null,
+                    "isExtraAanbod": false,
+                    "isWoningruil": false,
+                    "lengte": "0.00",
+                    "breedte": "0.00",
+                    "hoogte": "0.00",
+                    "rentDuration": {
+                        "name": null
+                    },
+                    "vatInclusive": false,
+                    "isGepubliceerdInEenModelMetReageren": true,
+                    "aantalMedebewoners": 0,
+                    "isExternModelType": false,
+                    "isZelfstandig": true,
+                    "urlKey": "12081-vanembdenstraat-384-delft",
+                    "eenmaligeKosten": 34.95,
+                    "borg": 1494,
+                    "serviceovereenkomstKosten": "0",
+                    "extraInschrijfduurUitgeschakeld": false,
+                    "eigenaar": {
+                        "name": null,
+                        "email": null,
+                        "emailLink": null,
+                        "telefoonnummer": null,
+                        "logo": null
+                    },
+                    "availableFromDate": "2025-06-18",
+                    "zonnepanelen": true,
+                    "gaslozeWoning": false,
+                    "nulOpDeMeterWoning": false,
+                    "verzameladvertentieID": 0,
+                    "huurprijsBuitenKortingsgrens": false,
+                    "uitlegTekstAanbiedproces": "",
+                    "verhuurteam": {
+                        "naam": null,
+                        "email": null,
+                        "emailLink": null,
+                        "telefoonnummer": null
+                    },
+                    "woningruilprofielBijzonderheden": null,
+                    "typeContract": null,
+                    "id": "12081"
+                },
+                "aantalKandidatenVoorMij": null,
+                "neemtDeelAanHuidigeGroepsaanbieding": false,
+                "neemtDeelAanHuidigeInteressepeiling": false,
+                "eigen1op1Aanbieding": false,
+                "peilingUitersteReactieDatumVerlopen": false,
+                "peilingBezichtigingsdatum": null,
+                "peilingBezichtigingsdatumVerlopen": false,
+                "motivatie": null
+            },
+            {
+                "kanVerwijderdWorden": true,
+                "id": 389194,
+                "toewijzingId": 8162,
+                "reactiedatum": "2025-06-06 11:59:49.590781",
+                "kandidaatnummer": null,
+                "positie": null,
+                "type": "actief",
+                "advertentie": {
+                    "aantalReacties": null,
+                    "status": "Gepubliceerd",
+                    "annuleerreden": null,
+                    "annuleerDatum": null
+                },
+                "persoonlijkeAanbieding": null,
+                "huidigeAanbieding": null,
+                "positieIsDefinitief": true,
+                "object": {
+                    "uitlegAanbiedprocesVideoTonen": false,
+                    "infoveldBewoners": "",
+                    "infoveldKort": "",
+                    "hospiterenVanaf": "",
+                    "extraInformatieUrl": "",
+                    "huurtoeslagVoorwaarde": {
+                        "icon": "",
+                        "id": null,
+                        "localizedIconText": null
+                    },
+                    "huurtoeslagMogelijk": null,
+                    "beschikbaarTot": "",
+                    "actionLabelToelichting": "",
+                    "huurinkomenstabelGebruiken": false,
+                    "voorrangAlleUrgenties": false,
+                    "voorrangHuishoudgrootteMin": 0,
+                    "voorrangHuishoudgrootteMax": 0,
+                    "voorrangLeeftijdMin": 0,
+                    "voorrangLeeftijdMax": 0,
+                    "voorrangGezinnenKinderen": false,
+                    "voorrangKernbinding": false,
+                    "reactionData": {
+                        "aangepasteNettoHuurprijs": null,
+                        "aangepasteTotaleHuurprijs": null
+                    },
+                    "isVrijeSectorWoning": true,
+                    "inschrijvingVereistVoorReageren": true,
+                    "VHE": "102684.001.003.011",
+                    "corporation": {
+                        "picture": {
+                            "location": "corporation\/pictures\/Plaza_Logo_Black.png"
+                        },
+                        "email": "",
+                        "emailLink": null,
+                        "telefoonnummer": "",
+                        "name": "Plaza Resident Services"
+                    },
+                    "postalcode": "2628 SJ",
+                    "street": "Jan de Oudeweg",
+                    "houseNumber": "162",
+                    "houseNumberAddition": "",
+                    "municipality": {
+                        "name": "Delft",
+                        "id": "15741"
+                    },
+                    "city": {
+                        "name": "Delft",
+                        "id": "3488"
+                    },
+                    "quarter": {
+                        "name": "Delft",
+                        "id": "741"
+                    },
+                    "neighborhood": {
+                        "name": "",
+                        "id": null
+                    },
+                    "dwellingType": {
+                        "categorie": "woning",
+                        "huurprijsDuurActief": false,
+                        "id": "37",
+                        "localizedName": "Appartement"
+                    },
+                    "availableFrom": "",
+                    "netRent": 865,
+                    "calculationRent": 878,
+                    "voorschotEnergielasten": 0,
+                    "totalRent": 1206.83,
+                    "flexibelHurenActief": false,
+                    "heatingCosts": 134.08,
+                    "epv": 0,
+                    "additionalCosts": 12.75,
+                    "serviceCosts": 195,
+                    "sellingPrice": 0,
+                    "description": "<p><span style=\"color:#263238;\">Van alle gemakken en comfort voorzien wonen in Delft?\u00a0<\/span><br \/><br \/><span style=\"color:#263238;\">Er zijn gestoffeerde en gemeubileerde appartementen beschikbaar voor studenten in De Pauwmolen. <strong>Deze studio\u2019s hebben een contract van maximaal 12 maanden. Deze locatie is helaas niet geschikt voor PhD studenten en werkenden.<\/strong> Je bereikt het bruisende centrum van Delft binnen 10 minuten per fiets.<\/span><br \/><br \/><span style=\"color:#263238;\">De appartementen zijn voorzien van een eigen luxe keuken met koelkast, combi magnetron, 4-pits kookplaat en afzuigkap. Daarnaast hebben de appartementen een eigen badkamer met luxe inloopdouche, zwevend toilet, wastafel met spiegel en ledverlichting. Van alle gemakken voorzien!<\/span><br \/><br \/><span style=\"color:#263238;\">De Pauwmolen beschikt daarnaast over een ondergrondse parkeergarage, waar je een parkeerplaats kunt huren. Er zijn meerdere fietsenstallingen aanwezig en een gemeenschappelijke wasserette.<\/span><br \/><br \/><span style=\"color:#263238;\">Bij het ontwerp en de bouw is goed nagedacht over duurzaamheid en comfort. Zo hebben de appartementen energielabel A en is de gemeenschappelijke wasserette voorzien van energiezuinige wasmachines en drogers.<\/span><br \/><br \/><span style=\"color:#263238;\">De appartementen zijn gestoffeerd en eigentijds ingericht met modern en stijlvast meubilair. Bij de inrichting is slim gebruik gemaakt van de ruimte, waardoor je extra comfortabel woont. Benieuwd naar de inhoud van de appartementen? Neem alvast een kijkje via de 3D tour:\u00a0<\/span><a href=\"https:\/\/my.matterport.com\/show\/?m=gmjEREKgp6k\">klik hier<\/a><br \/><br \/><span style=\"color:#263238;\">Goed om te weten is dat je naast de huur ook een voorschot aan nuts- en servicekosten betaald. Onder de nuts- en servicekosten vallen onder andere gas, water, licht, internet, schoonmaak van de algemene ruimtes en glasbewassing (buitenkant). Ieder jaar ontvang je een afrekening van de servicekosten.\u00a0<\/span><br \/><br \/><span style=\"color:#263238;\"><i>Disclaimer: De getoonde foto\u2019s zijn er om jou een goed beeld te geven van de woonruimte, maar hoeven niet altijd specifiek foto\u2019s te zijn van het geadverteerde type woning. Er kunnen dan ook geen rechten ontleend worden aan de getoonde foto\u2019s.<\/i><\/span><\/p>",
+                    "areaLivingRoom": 35,
+                    "areaSleepingRoom": "",
+                    "sleepingRoom": {
+                        "amountOfRooms": "0",
+                        "id": "7",
+                        "localizedName": "Geen losse slaapkamer"
+                    },
+                    "energyLabel": {
+                        "inCode": null,
+                        "id": null,
+                        "localizedName": null
+                    },
+                    "energyIndex": "0.00",
+                    "floor": {
+                        "id": "3",
+                        "localizedName": "2e verdieping"
+                    },
+                    "garden": false,
+                    "balcony": false,
+                    "constructionYear": 2021,
+                    "minimumIncome": 0,
+                    "maximumIncome": 0,
+                    "minimumHouseholdSize": 1,
+                    "maximumHouseholdSize": 1,
+                    "minimumAge": 16,
+                    "maximumAge": 0,
+                    "inwonendeKinderenMinimum": 0,
+                    "inwonendeKinderenMaximum": 0,
+                    "inwonendeKinderenVerboden": false,
+                    "model": {
+                        "modelCategorie": {
+                            "icon": "br_dth",
+                            "code": "reactiedatum",
+                            "toonOpWebsite": true,
+                            "id": "3",
+                            "name": "Snelle reageerder"
+                        },
+                        "inCode": "dth",
+                        "einddatumTonen": false,
+                        "aantalReactiesTonen": 0,
+                        "id": "3",
+                        "localizedName": "Advertentie"
+                    },
+                    "rentBuy": "Huur",
+                    "adNumber": "2025060131",
+                    "publicationDate": "2025-06-06 11:55:00",
+                    "closingDate": "2026-06-06 19:00:00",
+                    "numberOfReactions": 0,
+                    "assignmentID": 8162,
+                    "latitude": "52.006",
+                    "longitude": "4.38233",
+                    "floorplans": [],
+                    "pictures": [
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb1fb0bb6.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb20654c5.png",
+                            "type": "png"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb20b4aba.png",
+                            "type": "png"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb20f36ae.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb213aa83.jpg",
+                            "type": "jpg"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb216d821.png",
+                            "type": "png"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb21b44ce.png",
+                            "type": "png"
+                        },
+                        {
+                            "label": "",
+                            "uri": "\/portal\/uploads\/dwelling\/pictures\/11342-6842bb220f4e4.png",
+                            "type": "png"
+                        }
+                    ],
+                    "gebruikFotoAlsHeader": true,
+                    "remainingTimeUntilClosingDate": "11 maanden en 30 dagen",
+                    "reactieUrl": "",
+                    "temporaryRent": false,
+                    "showEnergyCosts": true,
+                    "newlyBuild": false,
+                    "storageRoom": false,
+                    "areaDwelling": 38,
+                    "areaPerceel": "0",
+                    "volumeDwelling": "0",
+                    "actionLabel": {
+                        "localizedLabel": null
+                    },
+                    "actionLabelFrom": "0000-00-00 00:00:00",
+                    "actionLabelUntil": "0000-00-00 00:00:00",
+                    "actionLabelIfActive": true,
+                    "relatieHuurInkomenData": null,
+                    "relatieHuurInkomenGroepen": null,
+                    "isExtraAanbod": false,
+                    "isWoningruil": false,
+                    "lengte": "0.00",
+                    "breedte": "0.00",
+                    "hoogte": "0.00",
+                    "rentDuration": {
+                        "name": null
+                    },
+                    "vatInclusive": false,
+                    "isGepubliceerdInEenModelMetReageren": true,
+                    "aantalMedebewoners": 0,
+                    "isExternModelType": false,
+                    "isZelfstandig": true,
+                    "urlKey": "11342-jandeoudeweg-162-delft",
+                    "eenmaligeKosten": 34.95,
+                    "borg": 1730,
+                    "serviceovereenkomstKosten": "0",
+                    "extraInschrijfduurUitgeschakeld": false,
+                    "eigenaar": {
+                        "name": null,
+                        "email": null,
+                        "emailLink": null,
+                        "telefoonnummer": null,
+                        "logo": null
+                    },
+                    "availableFromDate": "2025-07-01",
+                    "zonnepanelen": true,
+                    "gaslozeWoning": false,
+                    "nulOpDeMeterWoning": false,
+                    "verzameladvertentieID": 0,
+                    "huurprijsBuitenKortingsgrens": true,
+                    "uitlegTekstAanbiedproces": "",
+                    "verhuurteam": {
+                        "naam": null,
+                        "email": null,
+                        "emailLink": null,
+                        "telefoonnummer": null
+                    },
+                    "woningruilprofielBijzonderheden": null,
+                    "typeContract": null,
+                    "id": "11342"
+                },
+                "aantalKandidatenVoorMij": null,
+                "neemtDeelAanHuidigeGroepsaanbieding": false,
+                "neemtDeelAanHuidigeInteressepeiling": false,
+                "eigen1op1Aanbieding": false,
+                "peilingUitersteReactieDatumVerlopen": false,
+                "peilingBezichtigingsdatum": null,
+                "peilingBezichtigingsdatumVerlopen": false,
+                "motivatie": null
+            }
+        ],
+        "totaalAantal": 2
+    }
+}
