@@ -28,12 +28,30 @@ def reserved_items(session: requests.Session):
     Reaction.objects.all().delete()
     #print("DEBUG data:", resp.json()["result"]["items"])
     for item in resp.json()["result"]["items"]:
+        closingDate = parse_datetime(item["object"]["closingDate"])
+        if closingDate is not None and timezone.is_naive(closingDate):
+            closingDate = timezone.make_aware(closingDate, timezone.get_default_timezone())
+        publicationDate = parse_datetime(item["object"]["publicationDate"])
+        if publicationDate is not None and timezone.is_naive(publicationDate):
+            publicationDate = timezone.make_aware(publicationDate, timezone.get_default_timezone())
+        huidige_aanbieding = item.get("huidigeAanbieding")
+        if huidige_aanbieding and huidige_aanbieding.get("uitersteReactiedatum"):
+            uitersteReactiedatum = parse_datetime(huidige_aanbieding["uitersteReactiedatum"])
+            if uitersteReactiedatum is not None and timezone.is_naive(uitersteReactiedatum):
+                uitersteReactiedatum = timezone.make_aware(uitersteReactiedatum, timezone.get_default_timezone())
+        else:
+            uitersteReactiedatum = None
         dt = parse_datetime(item["reactiedatum"])
         if dt is not None and timezone.is_naive(dt):
             dt = timezone.make_aware(dt, timezone.get_default_timezone())
         rec = Reaction.objects.create(
             id=int(item["id"]),
             obj_id=int(item["object"]["id"]),
+
+            urlKey=item["object"]["urlKey"],
+            closingDate=closingDate,
+            publicationDate=publicationDate,
+
             kan_verwijderd_worden=item["kanVerwijderdWorden"],
             toewijzing_id=int(item["toewijzingId"]),
             reactiedatum=dt,  # Consider parsing to datetime
@@ -44,6 +62,7 @@ def reserved_items(session: requests.Session):
             advertentie=item.get("advertentie"),
             object_data=item.get("object"),
             huidige_aanbieding=item.get("huidigeAanbieding"),
+            uitersteReactiedatum=uitersteReactiedatum,
             persoonlijke_aanbieding=item.get("persoonlijkeAanbieding"),
         )
     return

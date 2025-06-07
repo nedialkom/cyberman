@@ -10,9 +10,10 @@ import threading
 import random
 from django.core.cache import cache
 from django.conf import settings
-from .models import Listing, Reaction
+from .models import Listing, Reaction, Offer
 from .login import  login_to_plaza
 from .reserverd_items import reserved_items
+from django.utils.dateparse import parse_datetime, parse_date
 
 import logging
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -76,6 +77,7 @@ def _fetch_loop():
     #take the id
     obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
     Listing.objects.all().delete()
+    Offer.objects.all().delete()
     while True:
         if cache.get("fetch_enabled", False):
             try:
@@ -88,7 +90,37 @@ def _fetch_loop():
                     data=data,
                     total_search_count=total_search_count
                 )
-                print(f"[{time.strftime('%H:%M:%S')}] Retrieved records:", len(listings_data["data"]))
+
+                # save offers
+                for item in data:
+                    city = item.get("city", {}).get("name", "")
+                    dwelling_type = item.get("dwellingType", {}).get("localizedName", "")
+                    publication_date = parse_datetime(item.get("publicationDate")) if item.get(
+                        "publicationDate") else None
+                    closing_date = parse_datetime(item.get("closingDate")) if item.get("closingDate") else None
+                    available_from_date = parse_date(item.get("availableFromDate")) if item.get(
+                        "availableFromDate") else None
+
+                    offer, created = Offer.objects.update_or_create(
+                        id=item["id"],
+                        defaults={
+                            "url_key": item.get("urlKey"),
+                            "city": city,
+                            "street": item.get("street"),
+                            "house_number": item.get("houseNumber"),
+                            "dwelling_type": dwelling_type,
+                            "total_rent": item.get("totalRent"),
+                            "net_rent": item.get("netRent"),
+                            "publication_date": publication_date,
+                            "closing_date": closing_date,
+                            "description": item.get("description"),
+                            "area_dwelling": item.get("areaDwelling"),
+                            "available_from_date": available_from_date,
+                            "data": item,
+                        }
+                    )
+
+                print(f"[{time.strftime('%H:%M:%S')}] Number of offers:", len(listings_data["data"]))
                 city = os.getenv("CITY")
 
                 # Filter-out only the one in CITY
