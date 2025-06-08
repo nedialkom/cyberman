@@ -7,13 +7,19 @@ import requests
 import os
 import datetime
 import threading
-import random
 from django.core.cache import cache
 from django.conf import settings
 from .models import Listing, Reaction, Offer
 from .login import  login_to_plaza
 from .reserverd_items import reserved_items
 from django.utils.dateparse import parse_datetime, parse_date
+from .book_it import book_property
+
+import traceback
+
+
+import random
+
 
 import logging
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -75,10 +81,11 @@ def _fetch_loop():
     # retrieve list of all reactions/reservations
     reserved_items(session=session)
     #take the id
-    obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
     Listing.objects.all().delete()
     Offer.objects.all().delete()
+    start = datetime.datetime.now()
     while True:
+        obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
         if cache.get("fetch_enabled", False):
             try:
                 # Retrieve all listings/offers
@@ -119,6 +126,7 @@ def _fetch_loop():
                             "data": item,
                         }
                     )
+                reactions = Reaction.objects.all()
 
                 print(f"[{time.strftime('%H:%M:%S')}] Number of offers:", len(listings_data["data"]))
                 city = os.getenv("CITY")
@@ -137,25 +145,53 @@ def _fetch_loop():
                     except Exception as e:
                         print("Failed to extract city:", e)
                         pass
-                cache.set("target_listings", target_listings, timeout=None)
+                cache.set("latest_api_data", list(reactions.values()), timeout=None)
                 print(f"[{time.strftime('%H:%M:%S')}] Properties in", city, ": ", len(target_listings))
 
                 # Not reacted properties
-                for item in target_listings:
-                    for obj_id in obj_ids:
-                        obj_id_set = set(obj_ids)
-                        target_listings = [item for item in target_listings if item["id"] not in obj_id_set]
+                obj_id_set = set(obj_ids)
+                #for item in target_listings:
+
+                target_listings = [item for item in target_listings if item["id"] not in obj_id_set]
                 print(f"[{time.strftime('%H:%M:%S')}] Not booked properties in", city, ": ", len(target_listings))
 
                 #Time to book it
                 if len(target_listings) > 0:
-                    print("Time to book it")
-                cache.set("target_listings", target_listings, timeout=None)
+                    print("It is now time time to book it")
+                    #randomize
+                    random.shuffle(target_listings)
+                    #login
+                    #session = login_to_plaza(username=usermane, password=password)
+                    booked_properties = []
+                    for item in target_listings:
+                        ID = item.get("ID")
+                        urlKey = item.get("urlKey")
+                        base_url = "https://plaza.newnewnew.space/aanbod/huurwoningen/details/"
+                        target_url = base_url + urlKey
+
+                        # BOOK!!!!
+                        if book_property(target_url, ID=ID) == "Success": booked_properties.append(item)
+                        else: raise Exception("Failed to book property"+target_url)
+                    for asset in booked_properties:
+                        try:
+                            target_listings.remove(asset)
+                        except ValueError:
+                            pass  # asset might already be removed, so ignore if not present
+                    reactions = Reaction.objects.all()
+                cache.set("latest_api_data", list(reactions.values()), timeout=None)
+                total_properties = {
+                    "cycle": datetime.datetime.now() - start,
+                    "offer_count": Offer.objects.count(),
+                    "total_reserved": len(obj_id_set),
+                    "not_booked": len(target_listings),
+                }
+                cache.set("total_properties",total_properties,timeout=None)
             except Exception as e:
                 print("Error during fetch iteration:", e)
+                traceback.print_exc()
         else:
             print(f"[{time.strftime('%H:%M:%S')}] Fetch disabled; skipping.")
-
+        start = datetime.datetime.now()
         time.sleep(interval)
 
 

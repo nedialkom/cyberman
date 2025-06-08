@@ -11,8 +11,8 @@ def index(request):
     :return: template "dashboard.html with context data
     """
     city = os.environ.get("CITY")
-    username = os.environ.get("USERNAME")
-    password = os.environ.get("PASSWORD")
+    username = os.environ.get("DJANGO_USERNAME")
+    password = os.environ.get("DJANGO_PASSWORD")
 
     return render(request, "dashboard.html", {
         "city": city,
@@ -55,4 +55,4 @@ def target_listings(request):
     data = cache.get("target_listings", None)
     if data is None or data == []:
         return JsonResponse({"status": "no_data_yet"})
-    return JsonResponse(len(data), safe=False)
+    return JsonResponse(data, safe=False)
