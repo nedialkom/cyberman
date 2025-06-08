@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17                   # You can choose any supported Postgres version (e.g., 14, 15, etc.)
+    image: postgres:17
     container_name: cyberman-db
     restart: always
     volumes:
@@ -8,23 +8,23 @@ services:
     env_file:
       - .env_db
     ports:
-      - "5432:5432"                      # Expose if you want to connect from host (optional)
+      - "5432:5432"
     command: ["postgres", "-c", "max_wal_size=2GB"]
 
   web:
     build:
-      context: ./application                # Path to Dockerfile
+      context: ./application
       dockerfile: Dockerfile
     container_name: cyberman-web
     restart: on-failure
     env_file:
-      - .env                             # Django-specific environment variables
+      - .env
     depends_on:
-      - db                               # Ensure db starts before web tries to connect
+      - db
     volumes:
-      - static_volume:/app/staticfiles   # Mount for static files (optional)
+      - static_volume:/app/staticfiles
     ports:
-      - "9000:9000"                      # Map container’s 8000 to host’s 8000
+      - "9000:9000"
     #command: ["gunicorn", "dashboard.wsgi:application", "--bind", "0.0.0.0:9000"]
     command: ["python", "manage.py", "runserver", "0.0.0.0:9000"]
 

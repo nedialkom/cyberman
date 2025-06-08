@@ -1,11 +1,10 @@
+import os
+import logging
 import requests
 from .models import Reaction
-import os
-
-from django.utils.dateparse import parse_datetime
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
-import logging
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 def reserved_items(session: requests.Session):

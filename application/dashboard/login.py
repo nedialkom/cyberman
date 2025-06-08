@@ -1,5 +1,5 @@
-import requests
 import os
+import requests
 
 def login_to_plaza(username: str, password: str):
     """

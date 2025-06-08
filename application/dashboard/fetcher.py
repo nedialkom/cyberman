@@ -1,31 +1,22 @@
 # dashboard/fetcher.py
-
-import time
-from asyncio import timeout
-
-import requests
 import os
+import time
+import random
+import logging
+import requests
 import datetime
 import threading
-from django.core.cache import cache
-from django.conf import settings
-from .models import Listing, Reaction, Offer
-from .login import  login_to_plaza
-from .reserverd_items import reserved_items
-from django.utils.dateparse import parse_datetime, parse_date
-from .book_it import book_property
-
 import traceback
+from .book_it import book_property
+from .login import  login_to_plaza
+from django.core.cache import cache
+from .reserverd_items import reserved_items
+from .models import Listing, Reaction, Offer
+from django.utils.dateparse import parse_datetime, parse_date
 
-
-import random
-
-
-import logging
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-import os
 limit=os.getenv("LIMIT")
+timeout = int(os.getenv("TIMEOUT"))
 
 def fetch_actual_listings():
     """
@@ -34,7 +25,6 @@ def fetch_actual_listings():
     """
     BASE_URL = "https://mosaic-plaza-aanbodapi.zig365.nl/api/v1/actueel-aanbod"
 
-    limit = os.getenv("LIMIT")
     page = 0
     locale = "nl_NL"
     sort_param = "+reactionData.aangepasteTotaleHuurprijs"
@@ -53,7 +43,7 @@ def fetch_actual_listings():
 
     payload = {"hidden-filters":{"$and":[{"dwellingType.categorie":{"$eq":"woning"}},{"rentBuy":{"$eq":"Huur"}},{"isExtraAanbod":{"$eq":""}},{"isWoningruil":{"$eq":""}},{"$and":[{"$or":[{"street":{"$like":""}},{"houseNumber":{"$like":""}},{"houseNumberAddition":{"$like":""}}]},{"$or":[{"street":{"$like":""}},{"houseNumber":{"$like":""}},{"houseNumberAddition":{"$like":""}}]}]}]}}
 
-    timeout = int(os.getenv("TIMEOUT"))
+
 
     resp = requests.get(
         BASE_URL,
@@ -71,7 +61,6 @@ def _fetch_loop():
     """
     usermane = str(os.getenv("DJANGO_USERNAME"))
     password = str(os.getenv("DJANGO_PASSWORD"))
-    timeout = int(os.getenv("TIMEOUT", 1000))
     interval = int(os.getenv("API_FETCH_INTERVAL", 1))
 
     print("Starting controlled API fetch loop… (use toggle to enable/disable)")

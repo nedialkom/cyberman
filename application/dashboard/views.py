@@ -1,7 +1,7 @@
+import os
 from django.shortcuts import render
 from django.core.cache import cache
 from django.http import JsonResponse
-import os
 
 
 def index(request):

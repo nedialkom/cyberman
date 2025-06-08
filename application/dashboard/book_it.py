@@ -1,7 +1,5 @@
-from django.core.cache import cache
 from .login import login_to_plaza
 from .reserverd_items import reserved_items
-import requests
 import logging
 import os
 
@@ -13,9 +11,10 @@ def book_property(target_url, ID):
         username = os.getenv("DJANGO_USERNAME")
         password = os.getenv("DJANGO_PASSWORD")
         timeout = int(os.getenv("TIMEOUT", 1000))
+
         #fresh log in
         session = login_to_plaza(username, password)
-        #cache.set("session", session, timeout=None)
+
         # 1) Get the id and __hash__ from special api
         config_resp = session.get(
             "https://plaza.newnewnew.space/portal/core/frontend/getformsubmitonlyconfiguration/format/json",
@@ -74,6 +73,7 @@ def book_property(target_url, ID):
             assigment_json = assigmentResp.json()
             toewijzingID = assigment_json.get("result", {}).get("assignmentID")
         except Exception as e:
+            toewijzingID = None
             print("Geting the assigmentID/toewijzingID based on id no successful:", e)
 
         # 4) Build the form‐encoded payload for the reservation POST.
@@ -91,7 +91,7 @@ def book_property(target_url, ID):
             # Note: you don’t need to set referrer/sec-ch-ua in Python
         }
 
-        # call the reservation post api
+        # 5) call the reservation post api
         try:
             resp = session.post(
                 url,
@@ -102,7 +102,7 @@ def book_property(target_url, ID):
             )
             resp.raise_for_status()
 
-            # 5) Check the JSON response from the login endpoint to see if it indicates success.
+            # Check the JSON response from the login endpoint to see if it indicates success.
             try:
                 post_json = resp.json()
             except ValueError:
