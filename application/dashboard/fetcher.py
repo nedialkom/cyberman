@@ -61,7 +61,8 @@ def _fetch_loop():
     """
     usermane = str(os.getenv("DJANGO_USERNAME"))
     password = str(os.getenv("DJANGO_PASSWORD"))
-    interval = int(os.getenv("API_FETCH_INTERVAL", 1))
+    interval = float(os.getenv("API_FETCH_INTERVAL", 1))
+
 
     print("Starting controlled API fetch loop… (use toggle to enable/disable)")
 
@@ -76,6 +77,7 @@ def _fetch_loop():
     while True:
         obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
         if cache.get("fetch_enabled", False):
+            cycle_start = datetime.datetime.now()
             try:
                 # Retrieve all listings/offers
                 listings_data = fetch_actual_listings()
@@ -146,6 +148,7 @@ def _fetch_loop():
 
                 #Time to book it
                 if len(target_listings) > 0:
+                    start_booking_time = datetime.datetime.now()
                     print("It is now time time to book it")
                     #randomize
                     random.shuffle(target_listings)
@@ -161,6 +164,7 @@ def _fetch_loop():
                         # BOOK!!!!
                         if book_property(target_url, ID=ID) == "Success": booked_properties.append(item)
                         else: raise Exception("Failed to book property"+target_url)
+                    print(len(booked_properties),"properties in ", city, "were booked for ", datetime.datetime.now()-start_booking_time)
                     for asset in booked_properties:
                         try:
                             target_listings.remove(asset)
@@ -178,10 +182,12 @@ def _fetch_loop():
             except Exception as e:
                 print("Error during fetch iteration:", e)
                 traceback.print_exc()
+            start = datetime.datetime.now()
+            time.sleep(interval)
+            cycle_end = datetime.datetime.now()
+            print("Cycle duration:", cycle_end - cycle_start)
         else:
             print(f"[{time.strftime('%H:%M:%S')}] Fetch disabled; skipping.")
-        start = datetime.datetime.now()
-        time.sleep(interval)
 
 
 def start_fetch_loop():
