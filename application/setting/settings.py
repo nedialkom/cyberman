@@ -133,28 +133,14 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
-        "null": {
-            "class": "logging.NullHandler",
-        },
-        "console": {
-            "class": "logging.StreamHandler",
+        "console": {"class": "logging.StreamHandler"},
+        "discord": {
+            "level": "ERROR",
+            "class": "dashboard.discord_logger.DiscordHandler",  # Update path as needed!
         },
     },
     "root": {
-        "handlers": ["console"],
-        "level": "DEBUG",
-    },
-    "loggers": {
-        # You can target your own app namespace:
-        "application": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "django.server": {
-            "handlers": ["null"],
-            "level": "WARNING",
-            "propagate": False,
-        },
+        "handlers": ["console", "discord"],
+        "level": "INFO",
     },
 }

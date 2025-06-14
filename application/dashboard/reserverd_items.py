@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-logging.getLogger("urllib3").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 def reserved_items(session: requests.Session):
     """
@@ -119,11 +119,13 @@ def reserved_items(session: requests.Session):
             )
 
             if created:
-                print("New property booked")
+                logger.error(f"Booked new property {item['object']['id']}")
             elif changed:
-                print("Existing property updated (fields changed)")
+                logger.error(f"Changes on existing property {item['object']['id']}")
             else:
-                print("Existing property unchanged (no real update)")
+                # Existing property unchanged (no real update)
+                pass
+
     # correct created_at based on json
     try:
         with open('dashboard/delft_offers.json', 'r') as file:
