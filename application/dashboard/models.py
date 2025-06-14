@@ -10,7 +10,7 @@ class Listing(models.Model):
 class Reaction(models.Model):
     id = models.BigIntegerField(primary_key=True)  # from "id" in data
     obj_id = models.BigIntegerField()
-    urlKey = models.CharField(max_length=100)
+    urlKey = models.CharField(max_length=200)
     closingDate = models.DateTimeField()
     publicationDate = models.DateTimeField()
     #"urlKey": "12081-vanembdenstraat-384-delft",
@@ -37,6 +37,7 @@ class Reaction(models.Model):
 
     persoonlijke_aanbieding = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    delta = models.DurationField(null=True, blank=True)
 
 
 class Offer(models.Model):

@@ -71,10 +71,14 @@ def _fetch_loop():
     # retrieve list of all reactions/reservations
     reserved_items(session=session)
     #take the id
-    Listing.objects.all().delete()
+    #Listing.objects.all().delete()
     Offer.objects.all().delete()
     start = datetime.datetime.now()
     while True:
+        # get all reserved/booked/reacted properties obj_id
+
+        # Auto start
+        cache.set("fetch_enabled", True, timeout=None)
         obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
         if cache.get("fetch_enabled", False):
             cycle_start = datetime.datetime.now()
@@ -84,10 +88,10 @@ def _fetch_loop():
                 data = listings_data["data"]
                 _metadata = listings_data["_metadata"]
                 total_search_count = int(_metadata["total_search_count"])
-                record = Listing.objects.create(
-                    data=data,
-                    total_search_count=total_search_count
-                )
+                #record = Listing.objects.create(
+                #    data=data,
+                #    total_search_count=total_search_count
+                #)
 
                 # save offers
                 for item in data:
@@ -117,7 +121,7 @@ def _fetch_loop():
                             "data": item,
                         }
                     )
-                reactions = Reaction.objects.all()
+                reactions = Reaction.objects.all().order_by("created_at")
 
                 print(f"[{time.strftime('%H:%M:%S')}] Number of offers:", len(listings_data["data"]))
                 city = os.getenv("CITY")
@@ -170,7 +174,7 @@ def _fetch_loop():
                             target_listings.remove(asset)
                         except ValueError:
                             pass  # asset might already be removed, so ignore if not present
-                    reactions = Reaction.objects.all()
+                    reactions = Reaction.objects.all().order_by('created_at')
                 cache.set("latest_api_data", list(reactions.values()), timeout=None)
                 total_properties = {
                     "cycle": datetime.datetime.now() - start,
@@ -187,6 +191,7 @@ def _fetch_loop():
             cycle_end = datetime.datetime.now()
             print("Cycle duration:", cycle_end - cycle_start)
         else:
+            time.sleep(interval)
             print(f"[{time.strftime('%H:%M:%S')}] Fetch disabled; skipping.")
 
 

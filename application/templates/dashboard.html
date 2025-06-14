@@ -88,6 +88,26 @@
     const toggleEndpointBase = "{% url 'toggle_fetch' 'DUMMY' %}".slice(0, -6);
     let pollTimer = null;
 
+    function parseISODuration(isoDuration) {
+      // Very basic ISO 8601 duration parser for PnDTnHnMnS
+      if (!isoDuration || typeof isoDuration !== "string") return "";
+      const regex = /P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?([\d.]+)S/;
+      const match = regex.exec(isoDuration);
+      if (!match) return isoDuration;
+
+      const days = parseInt(match[1] || 0, 10);
+      const hours = parseInt(match[2] || 0, 10);
+      const minutes = parseInt(match[3] || 0, 10);
+      const seconds = parseFloat(match[4] || 0);
+
+      let parts = [];
+      if (days) parts.push(`${days}d`);
+      if (hours) parts.push(`${hours}h`);
+      if (minutes) parts.push(`${minutes}m`);
+      if (seconds || parts.length === 0) parts.push(`${seconds.toFixed(2)}s`);
+      return parts.join(' ');
+    }
+
     function fetchAndRender() {
       fetch(dataEndpoint)
         .then(resp => {
@@ -117,7 +137,7 @@
           const table = document.createElement("table");
           const thead = document.createElement("thead");
           const headerRow = document.createElement("tr");
-          const columns = ["ID", "City", "Price", "Date Published", "Date Reserved", "URL"];
+          const columns = ["ID", "City", "Street", "Number", "Price", "Published", "Reserved in", "Type", "Status", "URL"];
           columns.forEach(col => {
             const th = document.createElement("th");
             th.textContent = col;
@@ -141,6 +161,17 @@
             tdAddress.textContent = item.object_data.city.name;
             tr.appendChild(tdAddress);
 
+            // Street
+            const tdStreet = document.createElement("td");
+            tdStreet.textContent = item.object_data.street;
+            tr.appendChild(tdStreet);
+
+            // Number
+            const tdNumber = document.createElement("td");
+            tdNumber.textContent = item.object_data.houseNumber;
+            tr.appendChild(tdNumber);
+
+
             // Price
             const tdPrice = document.createElement("td");
             tdPrice.textContent = item.object_data.totalRent;
@@ -148,18 +179,28 @@
 
             // Date Published
             const tdDate = document.createElement("td");
-            tdDate.textContent = item.object_data.publicationDate;
+            tdDate.textContent = item.created_at;
             tr.appendChild(tdDate);
 
-            // Reserved
-            const tdReserved = document.createElement("td");
-            tdReserved.textContent = item.object_data.reactiedatum ? "True" : "False";
-            tr.appendChild(tdReserved);
+            // Delta
+            const tdDelta = document.createElement("td");
+            tdDelta.textContent = parseISODuration(item.delta);
+            tr.appendChild(tdDelta);
+
+            // Type
+            const tdType = document.createElement("td");
+            tdType.textContent = item.type;
+            tr.appendChild(tdType);
+
+            // Status
+            const tdStatus = document.createElement("td");
+            tdStatus.textContent = item.advertentie.status;
+            tr.appendChild(tdStatus);
 
             // URL
             const tdUrl = document.createElement("td");
             const a = document.createElement("a");
-            a.href = item.object_data.urlKey;
+            a.href = item.urlKey;
             a.textContent = "Link";
             a.target = "_blank";
             tdUrl.appendChild(a);
@@ -212,6 +253,7 @@
 
     // Leave fetch off by default
     document.getElementById("status-indicator").textContent = "Fetch “OFF”";
+    // document.getElementById("status-indicator").textContent = "Fetch “ON”";
   </script>
 </body>
 </html>
