@@ -1,19 +1,15 @@
-from .login import login_to_plaza
-from .reserverd_items import reserved_items
-import logging
 import os
+import logging
+from .reserverd_items import reserved_items
 
-logging.getLogger("urllib3").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
-def book_property(target_url, ID):
+def book_property(target_url, ID, session):
     try:
         url = "https://plaza.newnewnew.space/portal/object/frontend/react/format/json"
         username = os.getenv("DJANGO_USERNAME")
         password = os.getenv("DJANGO_PASSWORD")
         timeout = int(os.getenv("TIMEOUT", 1000))
-
-        #fresh log in
-        session = login_to_plaza(username, password)
 
         # 1) Get the id and __hash__ from special api
         config_resp = session.get(
@@ -74,7 +70,7 @@ def book_property(target_url, ID):
             toewijzingID = assigment_json.get("result", {}).get("assignmentID")
         except Exception as e:
             toewijzingID = None
-            print("Geting the assigmentID/toewijzingID based on id no successful:", e)
+            logger.error(f"Getting the assigmentID/toewijzingID based on id no successful: {e}")
 
         # 4) Build the form‐encoded payload for the reservation POST.
         payload = {

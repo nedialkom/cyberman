@@ -69,7 +69,6 @@
 <body>
   <p><strong>City:</strong> {{ city }}</p>
   <p><strong>Username:</strong> {{ username }}</p>
-  <p><strong>Password:</strong> {{ password }}</p>
   <br>
   <h1>Start / Stop searching: </h1>
   <div class="controls">
@@ -78,6 +77,10 @@
     &nbsp;<span id="status-indicator">Search “OFF”</span>
   </div>
 
+  <div id="data-container2">
+    <p class="loading">No data yet. Click “Start search” to begin.</p>
+  </div>
+  <br>
   <div id="data-container">
     <p class="loading">No data yet. Click “Start search” to begin.</p>
   </div>
@@ -85,6 +88,7 @@
   <script>
     const POLL_INTERVAL = 1000; // 1 second
     const dataEndpoint = "{% url 'latest-data' %}";
+    const dataMetadata = "{% url 'metadata' %}"
     const toggleEndpointBase = "{% url 'toggle_fetch' 'DUMMY' %}".slice(0, -6);
     let pollTimer = null;
 
@@ -109,6 +113,79 @@
     }
 
     function fetchAndRender() {
+      fetch(dataMetadata)
+              .then(resp => {
+          if (!resp.ok) throw new Error("Network response was not OK");
+          return resp.json();
+        })
+        .then(json => {
+          const container2 = document.getElementById("data-container2");
+          container2.innerHTML = "";
+
+          if (json.status === "no_data_yet") {
+            container2.innerHTML = "<p class='loading'>No data yet. Waiting…</p>";
+            return;
+          }
+
+          if (json.status === "updated_but_no_new_data") {
+            const now = new Date().toLocaleTimeString();
+            container2.innerHTML = `<p class='loading'>${now} Updated but no new data</p>`;
+            return;
+          }
+
+          if (!Array.isArray(json)) {
+            container2.innerHTML = "<p class='error'>Unexpected data format.</p>";
+            return;
+          }
+          // Build table
+          const table2 = document.createElement("table");
+          const thead2 = document.createElement("thead");
+          const headerRow2 = document.createElement("tr");
+          const columns2 = ["Number of Cycles", "Average Cycle Time", "Last Cycle Time", "Total duration", ];
+          columns2.forEach(col => {
+            const th2 = document.createElement("th");
+            th2.textContent = col;
+            headerRow2.appendChild(th2);
+          });
+          thead2.appendChild(headerRow2);
+          table2.appendChild(thead2);
+          const tbody2 = document.createElement("tbody");
+          table2.appendChild(tbody2);
+          container2.appendChild(table2);
+
+
+          json.forEach(item2 => {
+             const tr2 = document.createElement("tr");
+
+             // cycles
+             const tdCycles = document.createElement("td");
+             tdCycles.textContent = item2.cycles;
+             tr2.appendChild(tdCycles);
+             // average_cycle_time
+             const tdAvCycleTime = document.createElement("td");
+             tdAvCycleTime.textContent = item2.average_cycle_time;
+             tr2.appendChild(tdAvCycleTime);
+             // last_cycle_time
+             const tdLastCycle = document.createElement("td");
+             tdLastCycle.textContent = item2.last_cycle_time;
+             tr2.appendChild(tdLastCycle);
+             // total_duration
+             const tdDuration = document.createElement("td");
+             tdDuration.textContent = item2.total_duration;
+             tr2.appendChild(tdDuration);
+
+
+             tbody2.appendChild(tr2);
+           });
+
+        })
+        .catch(err => {
+          const container2 = document.getElementById("data-container2");
+          container2.innerHTML = `<p class="error">Error fetching data: ${err}</p>`;
+        });
+
+
+
       fetch(dataEndpoint)
         .then(resp => {
           if (!resp.ok) throw new Error("Network response was not OK");

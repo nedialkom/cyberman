@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import logging
 import requests
 from .models import Reaction
@@ -11,18 +12,8 @@ logger = logging.getLogger(__name__)
 
 def reserved_items(session: requests.Session):
     """
-    Fetches all properties that the logged-in user has “reserved” (active reactions).
-    Returns the parsed JSON response from:
-      https://plaza.newnewnew.space/portal/registration/frontend/getactievereacties/format/json
+    Saves all reserved properties in Reserved table
     """
-
-    def parse_int(value):
-        try:
-            if value in (None, '', 'None'):
-                return None  # Or return 0 if you want
-            return int(value)
-        except Exception:
-            return None  # Or 0
 
     def safe_parse_datetime(value):
         if not value or value in ('0000-00-00 00:00:00', '0000-00-00', '', None):
@@ -119,9 +110,10 @@ def reserved_items(session: requests.Session):
             )
 
             if created:
-                logger.error(f"Booked new property {item['object']['id']}")
+                pass
+                #logger.error(f"Booked new property {item['object']['id']}")
             elif changed:
-                logger.error(f"Changes on existing property {item['object']['id']}")
+                logger.error(f"[{time.strftime('%H:%M:%S')}] Changes on existing property {item['object']['id']}")
             else:
                 # Existing property unchanged (no real update)
                 pass
@@ -144,4 +136,5 @@ def reserved_items(session: requests.Session):
     for item in Reaction.objects.all():
         item.delta = item.reactiedatum - item.created_at
         item.save(update_fields=["delta"])
-    return
+
+    return Reaction.objects.all().order_by("created_at")

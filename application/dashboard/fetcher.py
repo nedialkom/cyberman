@@ -3,128 +3,124 @@ import os
 import time
 import random
 import logging
-import requests
 import datetime
 import threading
 import traceback
+from .login import login_to_plaza
 from .book_it import book_property
-from .login import  login_to_plaza
+from .models import Reaction, Offer
 from django.core.cache import cache
+from .savelistings import savelistings
 from .reserverd_items import reserved_items
-from .models import Listing, Reaction, Offer
-from django.utils.dateparse import parse_datetime, parse_date
+from .getlistings import fetch_actual_listings
 
-logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
+
+target_city = os.getenv("CITY")
 limit=os.getenv("LIMIT")
 timeout = int(os.getenv("TIMEOUT"))
-
-def fetch_actual_listings():
-    """
-    Fetches one page of current rental offers and returns
-    the parsed JSON dict containing keys 'items', 'total', etc.
-    """
-    BASE_URL = "https://mosaic-plaza-aanbodapi.zig365.nl/api/v1/actueel-aanbod"
-
-    page = 0
-    locale = "nl_NL"
-    sort_param = "+reactionData.aangepasteTotaleHuurprijs"
-
-    params = {
-        "limit":  limit,
-        "page":   page,
-        "locale": locale,
-        "sort":   sort_param
-    }
-
-    headers = {
-        "Accept":     "application/json, text/plain, */*",
-        "User-Agent": "Mozilla/5.0 (compatible; PlazaBot/1.0)"
-    }
-
-    payload = {"hidden-filters":{"$and":[{"dwellingType.categorie":{"$eq":"woning"}},{"rentBuy":{"$eq":"Huur"}},{"isExtraAanbod":{"$eq":""}},{"isWoningruil":{"$eq":""}},{"$and":[{"$or":[{"street":{"$like":""}},{"houseNumber":{"$like":""}},{"houseNumberAddition":{"$like":""}}]},{"$or":[{"street":{"$like":""}},{"houseNumber":{"$like":""}},{"houseNumberAddition":{"$like":""}}]}]}]}}
+session_timeout = int(os.getenv("SESSION_TIMEOUT"))
 
 
-
-    resp = requests.get(
-        BASE_URL,
-        params=params,
-        headers=headers,
-        timeout=timeout,
-        data=payload)
-    resp.raise_for_status()
-    return resp.json()
-
+def format_timedelta(td):
+    total_seconds = int(td.total_seconds())
+    days, rem = divmod(total_seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, seconds = divmod(rem, 60)
+    parts = []
+    if days:
+        parts.append(f"{days}d")
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    # show 2 decimals for sub-second accuracy if needed
+    sec = td.total_seconds() % 60
+    parts.append(f"{sec:.2f}s")
+    return " ".join(parts)
 
 def _fetch_loop():
     """
     This function contains the infinite loop. It will be run in its own thread.
     """
-    usermane = str(os.getenv("DJANGO_USERNAME"))
+    username = str(os.getenv("DJANGO_USERNAME"))
     password = str(os.getenv("DJANGO_PASSWORD"))
     interval = float(os.getenv("API_FETCH_INTERVAL", 1))
 
-
-    print("Starting controlled API fetch loop… (use toggle to enable/disable)")
-
     # login
-    session = login_to_plaza(username=usermane, password=password)
-    # retrieve list of all reactions/reservations
-    reserved_items(session=session)
-    #take the id
-    #Listing.objects.all().delete()
-    Offer.objects.all().delete()
-    start = datetime.datetime.now()
-    while True:
-        # get all reserved/booked/reacted properties obj_id
+    session = login_to_plaza(username=username, password=password)
+    if session is None:
+        logger.error(f"[{time.strftime('%H:%M:%S')}] Initial login failed.")
+        return None
 
-        # Auto start
+    session_start = datetime.datetime.now()
+    msg = f"[{time.strftime('%H:%M:%S')}] Server started at {session_start}"
+    logger.error(msg)
+
+    listings_data = fetch_actual_listings(session=session)
+    if listings_data is None:
+        logging.error(f"[{time.strftime('%H:%M:%S')}] No listings data received, starting without data.")
+    data = listings_data["data"]
+    savelistings(data=data, silent=True)
+    logger.error(f"[{time.strftime('%H:%M:%S')}] Listings loaded in db")
+    offer_count = Offer.objects.all().count()
+    msg = f"[{time.strftime('%H:%M:%S')}] Total offers {offer_count}"
+    logger.error(msg)
+
+    offer_count_city = Offer.objects.filter(
+        city="Delft"
+    ).exclude(dwelling_type="Parkeergelegenheid").count()
+    msg = f"[{time.strftime('%H:%M:%S')}] Offers in {target_city}: {offer_count_city}"
+    logger.error(msg)
+
+    # updated DB with the reserved items and get the DB items
+    reactions = reserved_items(session=session)
+    cache.set("latest_api_data", list(reactions.values()), timeout=None)
+    reactions_count = len(reactions)
+    msg = f"[{time.strftime('%H:%M:%S')}] Total reservations: {reactions_count}"
+    logger.error(msg)
+
+    # DB Cleanup
+    #Listing.objects.all().delete()
+    #Offer.objects.all().delete()
+
+    start = datetime.datetime.now()
+    cycles = 0
+
+    while True:
+
+        cycle_start = datetime.datetime.now()
+
+        # Auto start - comment next line if not needed
         cache.set("fetch_enabled", True, timeout=None)
-        obj_ids = list(Reaction.objects.values_list('obj_id', flat=True))
+
+        if datetime.datetime.now() - session_start > datetime.timedelta(minutes=session_timeout):
+            session_begin = datetime.datetime.now()
+            session = login_to_plaza(username=username, password=password)
+            if session is None:
+                logger.error(f"[{time.strftime('%H:%M:%S')}] Intermediary login failed.")
+                continue
+            session_start = datetime.datetime.now()
+            logger.error(f"[{time.strftime('%H:%M:%S')}] New login session started for {session_start - session_begin}.")
+
         if cache.get("fetch_enabled", False):
-            cycle_start = datetime.datetime.now()
+
             try:
                 # Retrieve all listings/offers
-                listings_data = fetch_actual_listings()
+                listings_data = fetch_actual_listings(session=session)
+                if listings_data is None:
+                    logging.error(f"[{time.strftime('%H:%M:%S')}] No listings data received, skipping this cycle.")
+                    continue
                 data = listings_data["data"]
-                _metadata = listings_data["_metadata"]
-                total_search_count = int(_metadata["total_search_count"])
-                #record = Listing.objects.create(
-                #    data=data,
-                #    total_search_count=total_search_count
-                #)
 
-                # save offers
-                for item in data:
-                    city = item.get("city", {}).get("name", "")
-                    dwelling_type = item.get("dwellingType", {}).get("localizedName", "")
-                    publication_date = parse_datetime(item.get("publicationDate")) if item.get(
-                        "publicationDate") else None
-                    closing_date = parse_datetime(item.get("closingDate")) if item.get("closingDate") else None
-                    available_from_date = parse_date(item.get("availableFromDate")) if item.get(
-                        "availableFromDate") else None
+                # Check for changes in offer count
+                if len(data) != offer_count:
+                    msg = f"[{time.strftime('%H:%M:%S')}] Number of offers changed from: {offer_count} to: {len(data)}"
+                    logger.error(msg)
+                    offer_count = len(data)
 
-                    offer, created = Offer.objects.update_or_create(
-                        id=item["id"],
-                        defaults={
-                            "url_key": item.get("urlKey"),
-                            "city": city,
-                            "street": item.get("street"),
-                            "house_number": item.get("houseNumber"),
-                            "dwelling_type": dwelling_type,
-                            "total_rent": item.get("totalRent"),
-                            "net_rent": item.get("netRent"),
-                            "publication_date": publication_date,
-                            "closing_date": closing_date,
-                            "description": item.get("description"),
-                            "area_dwelling": item.get("areaDwelling"),
-                            "available_from_date": available_from_date,
-                            "data": item,
-                        }
-                    )
-                reactions = Reaction.objects.all().order_by("created_at")
-
-                print(f"[{time.strftime('%H:%M:%S')}] Number of offers:", len(listings_data["data"]))
-                city = os.getenv("CITY")
+                savelistings(data = data, silent=False)
 
                 # Filter-out only the one in CITY
                 target_listings=[]
@@ -134,30 +130,40 @@ def _fetch_loop():
                         item_city_name = item_city["name"]
                         item_dwellingType = item["dwellingType"]
                         item_dwellingType_categorie = item_dwellingType["categorie"]
-                        if item_city_name == city and item_dwellingType_categorie == "woning": #and item["id"] in ids:
-                            #print("Not reacted: https://plaza.newnewnew.space/aanbod/huurwoningen/details/https://plaza.newnewnew.space/aanbod/huurwoningen/details/", item["urlKey"])
+                        if item_city_name == target_city and item_dwellingType_categorie == "woning":
                             target_listings.append(item)
                     except Exception as e:
-                        print("Failed to extract city:", e)
-                        pass
-                cache.set("latest_api_data", list(reactions.values()), timeout=None)
-                print(f"[{time.strftime('%H:%M:%S')}] Properties in", city, ": ", len(target_listings))
+                        logger.error(f"[{time.strftime('%H:%M:%S')}] Exception while fetching listings: {e}")
 
-                # Not reacted properties
-                obj_id_set = set(obj_ids)
-                #for item in target_listings:
+                if len(target_listings) != offer_count_city:
+                    msg = f"[{time.strftime('%H:%M:%S')}] Number of offers in {target_city} changed from: {offer_count_city} to: {len(target_listings)}"
+                    #print(msg)
+                    logger.error(msg)
+                    offer_count_city = len(target_listings)
 
+
+                # Not reacted/booked properties
+
+                # get all reserved/booked/reacted properties obj_id
+                obj_id_set = set(list(Reaction.objects.values_list('obj_id', flat=True)))
+
+                #target_listings contains all not booked properties
                 target_listings = [item for item in target_listings if item["id"] not in obj_id_set]
-                print(f"[{time.strftime('%H:%M:%S')}] Not booked properties in", city, ": ", len(target_listings))
+                # print(f"[{time.strftime('%H:%M:%S')}] Not booked properties in", target_city, ": ", len(target_listings))
 
                 #Time to book it
-                if len(target_listings) > 0:
+                len_target_listings = len(target_listings)
+                if len_target_listings > 0:
                     start_booking_time = datetime.datetime.now()
-                    print("It is now time time to book it")
+                    msg = f"[{time.strftime('%H:%M:%S')}] Found {len_target_listings} not booked properties. Start booking at {start_booking_time}"
+                    #print(msg)
+                    logger.error(msg)
+
                     #randomize
-                    random.shuffle(target_listings)
-                    #login
-                    #session = login_to_plaza(username=usermane, password=password)
+                    if len_target_listings > 1: random.shuffle(target_listings)
+
+                    #fresh login (do we need it as we relog each .env SESSION_TIMEOUT)
+                    session = login_to_plaza(username=username, password=password)
                     booked_properties = []
                     for item in target_listings:
                         ID = item.get("ID")
@@ -165,34 +171,55 @@ def _fetch_loop():
                         base_url = "https://plaza.newnewnew.space/aanbod/huurwoningen/details/"
                         target_url = base_url + urlKey
 
-                        # BOOK!!!!
-                        if book_property(target_url, ID=ID) == "Success": booked_properties.append(item)
-                        else: raise Exception("Failed to book property"+target_url)
-                    print(len(booked_properties),"properties in ", city, "were booked for ", datetime.datetime.now()-start_booking_time)
+                        # BOOK IT !!!!
+                        if book_property(target_url=target_url, ID=ID, session=session) == "Success":
+                            msg=f"[{time.strftime('%H:%M:%S')}] Booked property {target_url}"
+                            #print(msg)
+                            logger.error(msg)
+                            booked_properties.append(item)
+                        else:
+                            msg = f"[{time.strftime('%H:%M:%S')}] Failed to book property {target_url}"
+                            #print(msg)
+                            logger.error(msg)
+
+
+                    msg=f"[{time.strftime('%H:%M:%S')}] {len(booked_properties)} properties in {target_city} were booked for {datetime.datetime.now()-start_booking_time}"
+                    #print(msg)
+                    logger.error(msg)
+
                     for asset in booked_properties:
                         try:
                             target_listings.remove(asset)
                         except ValueError:
                             pass  # asset might already be removed, so ignore if not present
-                    reactions = Reaction.objects.all().order_by('created_at')
+
+                ### Update reactions after booking of all found properties
+                reactions = Reaction.objects.all().order_by("created_at")
+
+
+
                 cache.set("latest_api_data", list(reactions.values()), timeout=None)
-                total_properties = {
-                    "cycle": datetime.datetime.now() - start,
-                    "offer_count": Offer.objects.count(),
-                    "total_reserved": len(obj_id_set),
-                    "not_booked": len(target_listings),
-                }
-                cache.set("total_properties",total_properties,timeout=None)
+                # print(f"Total cycles: {cycles}; Average cycle duration {average_cycle_time}; Last cycle duration {cycle_end-last_cycle_time}")
+
             except Exception as e:
-                print("Error during fetch iteration:", e)
+                logger.error(f"[{time.strftime('%H:%M:%S')}] Error during fetch iteration: {e}")
                 traceback.print_exc()
-            start = datetime.datetime.now()
             time.sleep(interval)
-            cycle_end = datetime.datetime.now()
-            print("Cycle duration:", cycle_end - cycle_start)
         else:
             time.sleep(interval)
             print(f"[{time.strftime('%H:%M:%S')}] Fetch disabled; skipping.")
+
+        cycles += 1
+        cycle_end = datetime.datetime.now()
+        average_cycle_time = (cycle_end - start) / cycles
+        last_cycle_time = cycle_end - cycle_start
+        metadata = [{"average_cycle_time": format_timedelta(average_cycle_time),
+                    "last_cycle_time": format_timedelta(last_cycle_time),
+                    "cycles":cycles,
+                    "total_duration":format_timedelta(cycle_end - start),
+        },]
+
+        cache.set("metadata", metadata, timeout=None)
 
 
 def start_fetch_loop():

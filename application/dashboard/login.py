@@ -1,13 +1,20 @@
 import os
+import time
+import logging
 import requests
+from .getaccount import getaccount
+
+logger = logging.getLogger(__name__)
 
 def login_to_plaza(username: str, password: str):
     """
     Logs into https://plaza.newnewnew.space/ by:
+      0) Starts new session !!!
       1) GETting the homepage to establish a session.
       2) GETting the login‐configuration JSON to scrape __id__ and __hash__.
       3) POSTing to the `loginbyservice/format/json` endpoint with those tokens + credentials.
       4) Verifying login by calling getaccount/format/json.
+      5) Returns logged-in session or None if failed
     """
 
     session = requests.Session()
@@ -43,10 +50,8 @@ def login_to_plaza(username: str, password: str):
     try:
         config_json = config_resp.json()
     except ValueError:
-        raise RuntimeError(
-            "Unable to parse login configuration JSON. "
-            f"Response text: {config_resp.text[:200]}"
-        )
+        logger.error(f"[{time.strftime('%H:%M:%S')}] Unable to parse login configuration JSON: {config_resp.text[:200]}")
+        return None
 
     # Extract __id__ and __hash__ from the JSON structure under "loginForm".
     login_form_cfg = config_json.get("loginForm", {})
@@ -58,10 +63,10 @@ def login_to_plaza(username: str, password: str):
     )
 
     if not __id__ or not __hash__:
-        raise RuntimeError(
-            "Could not find loginForm.id or loginForm.elements['__hash__'].initialData in login configuration JSON. "
-            f"Got: {config_json}"
+        logger.error(
+            f"[{time.strftime('%H:%M:%S')}] Could not find loginForm.id or loginForm.elements['__hash__'].initialData in login configuration JSON. Got: {config_json}"
         )
+        return None
 
     # 3) Build the form‐encoded payload for the login POST.
     form_data = {
@@ -96,43 +101,21 @@ def login_to_plaza(username: str, password: str):
     try:
         login_json = login_resp.json()
     except ValueError:
-        raise RuntimeError(
-            "Login response was not valid JSON. "
-            f"Status: {login_resp.status_code}, Text: {login_resp.text[:200]}"
-        )
+        logging.error(f"[{time.strftime('%H:%M:%S')}] Login response was not valid JSON: {login_resp.text[:200]}")
+        return None
 
     # Typical patterns: { "success": true, … } or { "loggedIn": true, … } or { "redirect": "/…"}
     if login_json.get("success") or login_json.get("loggedIn") or login_json.get("redirect"):
-        print("✓ Login appeared to succeed.")
+        #print("✓ Login appeared to succeed.")
+        pass
     else:
         errmsg = login_json.get("error") or login_json.get("message") or repr(login_json)
-        raise RuntimeError(f"Login failed. Server said: {errmsg}")
+        logger.error(f"[{time.strftime('%H:%M:%S')}] Login failed. Server said: {errmsg}")
+        return None
 
     # 6) Verify by calling the protected 'getaccount' endpoint
-    GET_ACCOUNT_URL = "https://plaza.newnewnew.space/portal/account/frontend/getaccount/format/json"
-    acct_resp = session.get(
-        GET_ACCOUNT_URL,
-        headers={
-            "Accept":           "application/json, text/plain, */*",
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer":          LOGIN_PAGE_URL,
-            "User-Agent":       headers["User-Agent"]
-        },
-        timeout=timeout,
-    )
-
-    if acct_resp.status_code == 200:
-        try:
-            acct_json = acct_resp.json()
-            print("✓ Account info fetched successfully. User: ", acct_json.get("account", {}).get("username"))
-        except ValueError:
-            raise RuntimeError(
-                "Unable to parse account JSON after login. "
-                f"Response text: {acct_resp.text[:200]}"
-            )
+    if getaccount(session):
+        return session
     else:
-        raise RuntimeError(
-            f"Failed to fetch account info after login. HTTP {acct_resp.status_code}"
-        )
-
-    return session
+        logger.error(f"Login failed: getaccount(session) returned False")
+        return None

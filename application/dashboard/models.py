@@ -30,7 +30,6 @@ class Reaction(models.Model):
     object_data = models.JSONField(null=True, blank=True)
     huidige_aanbieding = models.JSONField(null=True, blank=True)
     #Huidige aanbieding
-    reactiedatum =  models.DateTimeField()
     uitersteReactiedatum = models.DateTimeField(null=True, blank=True)
     #"reactiedatum": "2025-06-06 15:09:41", "reactiePositie": 0,
     #"uiterste Reactiedatum": "2025-06-09 16:00:00",
