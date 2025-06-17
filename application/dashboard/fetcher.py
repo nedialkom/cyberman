@@ -120,7 +120,12 @@ def _fetch_loop():
                     logger.error(msg)
                     offer_count = len(data)
 
-                savelistings(data = data, silent=False)
+
+
+
+
+                #write in db -- moved later
+                # savelistings(data = data, silent=False)
 
                 # Filter-out only the one in CITY
                 target_listings=[]
@@ -163,7 +168,8 @@ def _fetch_loop():
                     if len_target_listings > 1: random.shuffle(target_listings)
 
                     #fresh login (do we need it as we relog each .env SESSION_TIMEOUT)
-                    session = login_to_plaza(username=username, password=password)
+
+                    #session = login_to_plaza(username=username, password=password)
                     booked_properties = []
                     for item in target_listings:
                         ID = item.get("ID")
@@ -187,6 +193,8 @@ def _fetch_loop():
                     #print(msg)
                     logger.error(msg)
 
+                    # write in db -- was upper
+                    savelistings(data = data, silent=False)
                     for asset in booked_properties:
                         try:
                             target_listings.remove(asset)
