@@ -43,5 +43,5 @@ def fetch_actual_listings(session):
         resp.raise_for_status()
         return resp.json()
     except requests.exceptions.RequestException as e:
-        logger.error(f"[{time.strftime('%H:%M:%S')}] Error in fetcher.py fetch_actual_listings in running API: {e}")
+        logger.error(f"Error in fetcher.py fetch_actual_listings in running API: {e}")
         return None

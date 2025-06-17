@@ -47,11 +47,11 @@ def getaccount(session):
                 if attempt == 2: return False # last attempt failed
                 time.sleep(timeout)  # Wait and try again
             else:
-                logger.error(f"[{time.strftime('%H:%M:%S')}] Failed to fetch account info after login. HTTP {acct_resp.status_code}")
+                logger.error(f"Failed to fetch account info after login. HTTP {acct_resp.status_code}")
                 if attempt == 2: return False # last attempt failed
 
         except requests.exceptions.ConnectionError as e:
-            logging.error(f"[{time.strftime('%H:%M:%S')}] Connection error to {GET_ACCOUNT_URL}: {e}")
+            logging.error(f"Connection error to {GET_ACCOUNT_URL}: {e}")
             if attempt == 2: return False # last attempt failed
 
     if acct_json.get("account", {}).get("username") == os.getenv("DJANGO_USERNAME"):

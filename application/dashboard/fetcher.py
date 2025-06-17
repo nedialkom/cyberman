@@ -51,34 +51,34 @@ def _fetch_loop():
     # login
     session = login_to_plaza(username=username, password=password)
     if session is None:
-        logger.error(f"[{time.strftime('%H:%M:%S')}] Initial login failed.")
+        logger.error(f"Initial login failed.")
         return None
 
     session_start = datetime.datetime.now()
-    msg = f"[{time.strftime('%H:%M:%S')}] Server started at {session_start}"
+    msg = f"Server started at {session_start}"
     logger.error(msg)
 
     listings_data = fetch_actual_listings(session=session)
     if listings_data is None:
-        logging.error(f"[{time.strftime('%H:%M:%S')}] No listings data received, starting without data.")
+        logging.error(f"No listings data received, starting without data.")
     data = listings_data["data"]
     savelistings(data=data, silent=True)
-    logger.error(f"[{time.strftime('%H:%M:%S')}] Listings loaded in db")
+    logger.error(f"Listings loaded in db")
     offer_count = Offer.objects.all().count()
-    msg = f"[{time.strftime('%H:%M:%S')}] Total offers {offer_count}"
+    msg = f"Total offers {offer_count}"
     logger.error(msg)
 
     offer_count_city = Offer.objects.filter(
         city="Delft"
     ).exclude(dwelling_type="Parkeergelegenheid").count()
-    msg = f"[{time.strftime('%H:%M:%S')}] Offers in {target_city}: {offer_count_city}"
+    msg = f"Offers in {target_city}: {offer_count_city}"
     logger.error(msg)
 
     # updated DB with the reserved items and get the DB items
     reactions = reserved_items(session=session)
     cache.set("latest_api_data", list(reactions.values()), timeout=None)
     reactions_count = len(reactions)
-    msg = f"[{time.strftime('%H:%M:%S')}] Total reservations: {reactions_count}"
+    msg = f"Total reservations: {reactions_count}"
     logger.error(msg)
 
     # DB Cleanup
@@ -99,10 +99,10 @@ def _fetch_loop():
             session_begin = datetime.datetime.now()
             session = login_to_plaza(username=username, password=password)
             if session is None:
-                logger.error(f"[{time.strftime('%H:%M:%S')}] Intermediary login failed.")
+                logger.error(f"Intermediary login failed.")
                 continue
             session_start = datetime.datetime.now()
-            logger.error(f"[{time.strftime('%H:%M:%S')}] New login session started for {session_start - session_begin}.")
+            #logger.error(f"New login session started for {session_start - session_begin}.")
 
         if cache.get("fetch_enabled", False):
 
@@ -110,13 +110,13 @@ def _fetch_loop():
                 # Retrieve all listings/offers
                 listings_data = fetch_actual_listings(session=session)
                 if listings_data is None:
-                    logging.error(f"[{time.strftime('%H:%M:%S')}] No listings data received, skipping this cycle.")
+                    logging.error(f"No listings data received, skipping this cycle.")
                     continue
                 data = listings_data["data"]
 
                 # Check for changes in offer count
                 if len(data) != offer_count:
-                    msg = f"[{time.strftime('%H:%M:%S')}] Number of offers changed from: {offer_count} to: {len(data)}"
+                    msg = f"Number of offers changed from: {offer_count} to: {len(data)}"
                     logger.error(msg)
                     offer_count = len(data)
 
@@ -138,10 +138,10 @@ def _fetch_loop():
                         if item_city_name == target_city and item_dwellingType_categorie == "woning":
                             target_listings.append(item)
                     except Exception as e:
-                        logger.error(f"[{time.strftime('%H:%M:%S')}] Exception while fetching listings: {e}")
+                        logger.error(f"Exception while fetching listings: {e}")
 
                 if len(target_listings) != offer_count_city:
-                    msg = f"[{time.strftime('%H:%M:%S')}] Number of offers in {target_city} changed from: {offer_count_city} to: {len(target_listings)}"
+                    msg = f"Number of offers in {target_city} changed from: {offer_count_city} to: {len(target_listings)}"
                     #print(msg)
                     logger.error(msg)
                     offer_count_city = len(target_listings)
@@ -154,13 +154,13 @@ def _fetch_loop():
 
                 #target_listings contains all not booked properties
                 target_listings = [item for item in target_listings if item["id"] not in obj_id_set]
-                # print(f"[{time.strftime('%H:%M:%S')}] Not booked properties in", target_city, ": ", len(target_listings))
+                # print(f"Not booked properties in", target_city, ": ", len(target_listings))
 
                 #Time to book it
                 len_target_listings = len(target_listings)
                 if len_target_listings > 0:
                     start_booking_time = datetime.datetime.now()
-                    msg = f"[{time.strftime('%H:%M:%S')}] Found {len_target_listings} not booked properties. Start booking at {start_booking_time}"
+                    msg = f"Found {len_target_listings} not booked properties. Start booking at {start_booking_time}"
                     #print(msg)
                     logger.error(msg)
 
@@ -178,18 +178,23 @@ def _fetch_loop():
                         target_url = base_url + urlKey
 
                         # BOOK IT !!!!
+                        item_start_booking_time = datetime.datetime.now()
                         if book_property(target_url=target_url, ID=ID, session=session) == "Success":
-                            msg=f"[{time.strftime('%H:%M:%S')}] Booked property {target_url}"
+                            msg=f"Booked property {target_url}"
+                            item_end_booking_time = datetime.datetime.now()
                             #print(msg)
+                            logger.error(msg)
+                            msg=f"Found at {start_booking_time}, started booking at {item_start_booking_time}, finished booking at {item_end_booking_time}"
                             logger.error(msg)
                             booked_properties.append(item)
                         else:
-                            msg = f"[{time.strftime('%H:%M:%S')}] Failed to book property {target_url}"
+                            msg = f"Failed to book property {target_url}"
                             #print(msg)
                             logger.error(msg)
 
 
-                    msg=f"[{time.strftime('%H:%M:%S')}] {len(booked_properties)} properties in {target_city} were booked for {datetime.datetime.now()-start_booking_time}"
+
+                    msg=f"{len(booked_properties)} properties in {target_city} were booked for {datetime.datetime.now()-start_booking_time}"
                     #print(msg)
                     logger.error(msg)
 
@@ -210,12 +215,12 @@ def _fetch_loop():
                 # print(f"Total cycles: {cycles}; Average cycle duration {average_cycle_time}; Last cycle duration {cycle_end-last_cycle_time}")
 
             except Exception as e:
-                logger.error(f"[{time.strftime('%H:%M:%S')}] Error during fetch iteration: {e}")
+                logger.error(f"Error during fetch iteration: {e}")
                 traceback.print_exc()
             time.sleep(interval)
         else:
             time.sleep(interval)
-            print(f"[{time.strftime('%H:%M:%S')}] Fetch disabled; skipping.")
+            print(f"Fetch disabled; skipping.")
 
         cycles += 1
         cycle_end = datetime.datetime.now()

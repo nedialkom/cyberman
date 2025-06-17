@@ -50,7 +50,7 @@ def login_to_plaza(username: str, password: str):
     try:
         config_json = config_resp.json()
     except ValueError:
-        logger.error(f"[{time.strftime('%H:%M:%S')}] Unable to parse login configuration JSON: {config_resp.text[:200]}")
+        logger.error(f"Unable to parse login configuration JSON: {config_resp.text[:200]}")
         return None
 
     # Extract __id__ and __hash__ from the JSON structure under "loginForm".
@@ -64,7 +64,7 @@ def login_to_plaza(username: str, password: str):
 
     if not __id__ or not __hash__:
         logger.error(
-            f"[{time.strftime('%H:%M:%S')}] Could not find loginForm.id or loginForm.elements['__hash__'].initialData in login configuration JSON. Got: {config_json}"
+            f"Could not find loginForm.id or loginForm.elements['__hash__'].initialData in login configuration JSON. Got: {config_json}"
         )
         return None
 
@@ -101,7 +101,7 @@ def login_to_plaza(username: str, password: str):
     try:
         login_json = login_resp.json()
     except ValueError:
-        logging.error(f"[{time.strftime('%H:%M:%S')}] Login response was not valid JSON: {login_resp.text[:200]}")
+        logging.error(f"Login response was not valid JSON: {login_resp.text[:200]}")
         return None
 
     # Typical patterns: { "success": true, … } or { "loggedIn": true, … } or { "redirect": "/…"}
@@ -110,7 +110,7 @@ def login_to_plaza(username: str, password: str):
         pass
     else:
         errmsg = login_json.get("error") or login_json.get("message") or repr(login_json)
-        logger.error(f"[{time.strftime('%H:%M:%S')}] Login failed. Server said: {errmsg}")
+        logger.error(f"Login failed. Server said: {errmsg}")
         return None
 
     # 6) Verify by calling the protected 'getaccount' endpoint

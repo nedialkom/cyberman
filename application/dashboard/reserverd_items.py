@@ -113,7 +113,7 @@ def reserved_items(session: requests.Session):
                 pass
                 #logger.error(f"Booked new property {item['object']['id']}")
             elif changed:
-                logger.error(f"[{time.strftime('%H:%M:%S')}] Changes on existing property {item['object']['id']}")
+                logger.error(f"Changes on existing property {item['object']['id']}")
             else:
                 # Existing property unchanged (no real update)
                 pass
